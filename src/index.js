@@ -146,49 +146,61 @@ function Sybase({
       this.database,
       this.username,
       this.password,
-      this.minConnections,
-      this.maxConnections,
-      this.connectionTimeout,
-      this.idleTimeout,
-      this.keepaliveTime,
-      this.maxLifetime,
-      this.transactionConnections
+      this.minConnections.toString(),
+      this.maxConnections.toString(),
+      this.connectionTimeout.toString(),
+      this.idleTimeout.toString(),
+      this.keepaliveTime.toString(),
+      this.maxLifetime.toString(),
+      this.transactionConnections.toString()
     ]);
 
     const handleConnection = (resolve, reject) => {
       let dataStr;
-      this.javaDB.stdout.once("data", (data) => {
+      let hasConnected = false;
+
+      this.javaDB.stdout.on("data", (data) => {
+        if (hasConnected) return;
+
         dataStr = data.toString().trim();
-        if (dataStr !== "connected") {
-          const error = new Error(`Error connecting ${dataStr}`);
-          if (callback) callback(error, null);
-          else reject(error);
-          return;
+        console.log('Java stdout received:', dataStr);
+
+        if (dataStr === "connected") {
+          hasConnected = true;
+          this.javaDB.stderr.removeAllListeners("data");
+          this.connected = true;
+
+          this.javaDB.stdout
+              .pipe(this.jsonParser)
+              .on("data", (jsonMsg) => {
+                onSQLResponse(jsonMsg);
+              });
+
+          if (callback) callback(null, dataStr);
+          else resolve(dataStr);
         }
-
-        this.javaDB.stderr.removeAllListeners("data");
-        this.connected = true;
-
-        this.javaDB.stdout
-          // .setEncoding(this.encoding)
-          .pipe(this.jsonParser)
-          .on("data", (jsonMsg) => {
-            onSQLResponse(jsonMsg);
-          });
-        this.javaDB.stderr.on("data", (err) => {
-          onSQLError(err);
-        });
-
-        if (callback) callback(null, dataStr);
-        else resolve(dataStr);
       });
 
-      this.javaDB.stderr.once("data", (data) => {
-        this.javaDB.stdout.removeAllListeners("data");
-        this.javaDB.kill();
-        const error = new Error(data.toString());
-        if (callback) callback(error, null);
-        else reject(error);
+      this.javaDB.stderr.on("data", (data) => {
+        const errorMessage = data.toString();
+        console.log('Java stderr received:', errorMessage);
+
+        // Ignore HikariCP info/warning messages
+        if (errorMessage.includes('[main] INFO') ||
+            errorMessage.includes('[Thread-') ||
+            errorMessage.includes('HikariPool') ||
+            errorMessage.includes('WARN')) {
+          return; // Just log messages, not errors
+        }
+
+        // Only treat as error if it's a real error and we haven't connected yet
+        if (!hasConnected) {
+          this.javaDB.stdout.removeAllListeners("data");
+          this.javaDB.kill();
+          const error = new Error(errorMessage);
+          if (callback) callback(error, null);
+          else reject(error);
+        }
       });
     };
 

@@ -1,4 +1,3 @@
-
 import com.sybase.jdbc4.jdbc.SybDataSource;
 import com.sybase.jdbc4.jdbc.SybDriver;
 import com.zaxxer.hikari.HikariConfig;
@@ -15,6 +14,7 @@ import java.util.Properties;
 /**
  *
  * @author DarkJ24
+ * modified by Patrick Schababerle
  */
 public class ConnectionPoolTransaction {
     
@@ -40,7 +40,8 @@ public class ConnectionPoolTransaction {
       ) throws SQLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
  
         // Register the driver
-        String url = "jdbc:sybase:Tds:" + host + ":" + port + "/" + dbName;
+        // FIXED: Use ServiceName instead of slash notation
+        String url = "jdbc:sybase:Tds:" + host + ":" + port + "?ServiceName=" + dbName;
         SybDriver sybDriver = (SybDriver) Class.forName("com.sybase.jdbc4.jdbc.SybDriver").newInstance();
         DriverManager.registerDriver((Driver) sybDriver);
 
