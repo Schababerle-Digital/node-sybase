@@ -1,126 +1,29 @@
-# Sybase Node.js Bridge
+# Sybase Node.js Bridge (ServiceName Fix)
 
 ## Overview
 
 This library provides a Node.js bridge to connect to a Sybase database. It uses a Java bridge to facilitate the connection and query execution.
 
+**🔧 Fixed Issue:** This fork resolves the ServiceName parameter being ignored in JDBC connection strings, ensuring you connect to the correct database instead of the server's default database.
+
 ## Installation
 
 ```bash
-npm install @soinlabs/sybase
+npm install @schababerledigital/node-sybase
 ```
 
-Requirements
-------------
+## Original package
 
-* java 1.8+
+https://www.npmjs.com/package/@soinlabs/sybase
 
-## Usage
+## Changes from Original
 
-### Importing the Library
+- ✅ Fixed JDBC URL to use `?ServiceName=database` format
+- ✅ Added database connection verification
+- ✅ Updated for jconn4.jar compatibility
+- ✅ Added debug logging for connection troubleshooting
+- ✅ Improved error handling for connection failures
 
-```javascript
-const Sybase = require('@soinlabs/sybase');
-```
+## License
 
-### Creating a Sybase Instance
-
-```javascript
-const sybase = new Sybase({
-  host: 'localhost',
-  port: 5000,
-  database: 'sybase',
-  username: 'username',
-  password: 'password',
-  encoding: 'utf8',
-  pathToJavaBridge: '/path/to/JavaSybaseLink.jar', // Optional
-  logTiming: true, //Logs on JAR side
-  logs: true //Logs on Node.js side
-});
-```
-
-### Connecting to the Database
-
-### `connect()`
-
-```javascript
-sybase.connect((err, data) => {
-  if (err) {
-    console.error(err);
-    return;
-  }
-  console.log('Connected:', data);
-});
-```
-
-### `connectAsync()`
-
-```javascript
-const data = await sybase.connectAsync();
-console.log('Connected:', data);
-```
-
-### Executing Queries
-
-### `query(sqlQuery)`
-
-```javascript
-sybase.query('SELECT * FROM users', (err, result) => {
-  if (err) {
-    console.error(err);
-    return;
-  }
-  console.log('Result:', result);
-});
-```
-
-### `querySync(sqlQuery)`
-
-```javascript
-const result = await sybase.querySync('SELECT * FROM users');
-console.log('Result:', result);
-```
-
-### `disconnect()`
-
-```javascript
-sybase.disconnect();
-```
-
-### `disconnectSync()`
-
-The `disconnectSync` method allows you to disconnect synchronously from the database and terminates the associated Java process
-
-```javascript
-const sybase = new Sybase(...);
-await sybase.disconnectSync();
-```
-
-### `isConnected()`
-
-```javascript
-const isConnected = sybase.isConnected();
-console.log(`Is connected: ${isConnected}`);
-```
-
-### `transaction(queriesFunction)`
-
-Executes a series of queries within a transaction. If any of the queries fail, the transaction will be rolled back.
-
-#### Example
-
-```javascript
-async function main() {
-  try {
-    const result = await sybase.transaction(async (connection) => {
-      const user = await connection.querySync('SELECT * FROM users WHERE id = 1');
-      await connection.querySync(`UPDATE users SET name = 'John' WHERE id = 1`);
-      return user;
-    });
-    console.log('Transaction successful, result:', result);
-  } catch (err) {
-    console.error('Transaction failed:', err);
-  }
-}
-
-main();
+MIT License

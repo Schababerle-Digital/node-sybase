@@ -1,6 +1,6 @@
 {
-  "name": "@soinlabs/sybase",
-  "version": "1.0.2",
+  "name": "@schababerledigital/node-sybase",
+  "version": "1.0.0",
   "description": "This library provides a Node.js bridge to connect to a Sybase database. It uses a Java bridge to facilitate the connection and query execution.",
   "dependencies": {
     "stream-json": "latest"
@@ -11,7 +11,7 @@
   "scripts": {
     "test": "mocha"
   },
-  "homepage": "http://github.com/SoinLabs/sybase",
+  "homepage": "https://github.com/Schababerle-Digital/node-sybase",
   "repository": {
     "type": "git",
     "url": "git://github.com/SoinLabs/sybase.git"
@@ -24,9 +24,9 @@
     "sql",
     "java"
   ],
-  "author": "SoinLabs <soinlabs@soin.co.cr>",
+  "author": "Patrick Schababerle <patrick@schababerle.digital>",
   "bugs": {
-    "url": "http://github.com/SoinLabs/sybase/issues"
+    "url": "https://github.com/Schababerle-Digital/node-sybase/issues"
   },
   "devDependencies": {
     "bluebird": "^3.4.6",
