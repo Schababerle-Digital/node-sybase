@@ -17,10 +17,10 @@ import java.util.Properties;
  * @author DarkJ24
  */
 public class ConnectionPoolTransaction2 {
-    
+
     private HashMap<Integer, Connection> transactions = new HashMap<Integer, Connection>();
     private final HikariDataSource dataSource;
-    
+
     /**
      * Creates a new ConnectionPool with the given parameters
      * @param host The host of the database
@@ -41,7 +41,7 @@ public class ConnectionPoolTransaction2 {
       int minConnections, int maxConnections,
       int acquireTimeout, int idleTimeout, boolean autoCommit
       ) throws SQLException {
- 
+
 //        Properties props = new Properties();
 //        props.setProperty("dataSourceClassName", "com.sybase.jdbc4.jdbc.SybDataSource");
 //        props.setProperty("dataSource.serverName", host);
@@ -54,7 +54,7 @@ public class ConnectionPoolTransaction2 {
 //        props.setProperty("maximumPoolSize", Integer.toString(maxConnections));
 //        props.setProperty("minimumIdle", Integer.toString(minConnections));
 //        props.setProperty("autoCommit", Boolean.toString(autoCommit));
-        
+
 
 //        HikariConfig config = new HikariConfig(props);
         HikariConfig config = new HikariConfig();
@@ -64,7 +64,7 @@ public class ConnectionPoolTransaction2 {
         config.addDataSourceProperty("user", username);
         config.addDataSourceProperty("password", password);
 //        config.addDataSourceProperty("url", "jdbc:sybase:Tds:"+host+":"+port+"/"+dbName);
-        config.addDataSourceProperty("databaseName", dbName);
+        config.addDataSourceProperty("SERVICENAME", dbName);
         config.setIdleTimeout(idleTimeout);
         config.setConnectionTimeout(300000);
         config.setMaximumPoolSize(maxConnections);
@@ -78,11 +78,11 @@ public class ConnectionPoolTransaction2 {
         // Return the ConnectionPool
         return new ConnectionPoolTransaction2(ds);
     }
-    
+
     private ConnectionPoolTransaction2(HikariDataSource ds) {
         this.dataSource = ds;
     }
-    
+
     /**
      * Gets a connection from the pool or creates a new one if the pool is empty
      * @return The connection from the pool
@@ -96,7 +96,7 @@ public class ConnectionPoolTransaction2 {
         }
         return connection;
     }
-    
+
     /**
      * Shuts down the connection pool and closes all connections
      * @throws SQLException Thrown if there is an error closing the connections
@@ -104,7 +104,7 @@ public class ConnectionPoolTransaction2 {
     public void shutdown() throws SQLException {
         this.dataSource.close();
     }
-    
+
     public void releaseConnection(int transactionId) {
         this.transactions.remove(transactionId);
     }

@@ -15,9 +15,9 @@ import java.util.Properties;
  * @author DarkJ24
  */
 public class ConnectionPool {
-    
+
     private final HikariDataSource dataSource;
-    
+
     /**
      * Creates a new ConnectionPool with the given parameters
      * @param host The host of the database
@@ -40,14 +40,14 @@ public class ConnectionPool {
       int minConnections, int maxConnections,
       int connectionTimeout, int idleTimeout, int keepaliveTime, int maxLifetime, boolean autoCommit
       ) throws SQLException {
- 
+
         HikariConfig config = new HikariConfig();
         config.setDataSourceClassName("com.sybase.jdbc4.jdbc.SybDataSource");
         config.addDataSourceProperty("serverName", host);
         config.addDataSourceProperty("portNumber", port);
         config.addDataSourceProperty("user", username);
         config.addDataSourceProperty("password", password);
-        config.addDataSourceProperty("databaseName", dbName);
+        config.addDataSourceProperty("SERVICENAME", dbName);
         config.setIdleTimeout(idleTimeout);
         config.setConnectionTimeout(connectionTimeout);
         config.setMaximumPoolSize(maxConnections);
@@ -60,11 +60,11 @@ public class ConnectionPool {
         // Return the ConnectionPool
         return new ConnectionPool(ds);
     }
-    
+
     private ConnectionPool(HikariDataSource ds) {
         this.dataSource = ds;
     }
-    
+
     /**
      * Gets a connection from the pool or creates a new one if the pool is empty
      * @return The connection from the pool
@@ -73,7 +73,7 @@ public class ConnectionPool {
     public Connection getConnection() throws SQLException {
         return this.dataSource.getConnection();
     }
-    
+
     /**
      * Shuts down the connection pool and closes all connections
      * @throws SQLException Thrown if there is an error closing the connections
