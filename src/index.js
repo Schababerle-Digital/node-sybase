@@ -4,6 +4,37 @@ const { chain } = require("stream-chain");
 const { parser } = require("stream-json");
 const { streamValues } = require("stream-json/streamers/StreamValues");
 
+/**
+ * Creates a Sybase database connection with the given configuration.
+ * 
+ * @param {Object} config - Configuration object for the Sybase connection
+ * @param {string} config.host - Database host
+ * @param {string|number} config.port - Database port
+ * @param {string} config.database - Database name
+ * @param {string} config.username - Database username
+ * @param {string} config.password - Database password
+ * @param {number} [config.minConnections=1] - Minimum number of connections in the pool
+ * @param {number} [config.maxConnections=1] - Maximum number of connections in the pool
+ * @param {number} [config.connectionTimeout=30000] - Connection timeout in milliseconds
+ * @param {number} [config.idleTimeout=60000] - Idle timeout in milliseconds
+ * @param {number} [config.keepaliveTime=0] - Keepalive time in milliseconds
+ * @param {number} [config.maxLifetime=1800000] - Maximum lifetime of a connection in milliseconds
+ * @param {number} [config.transactionConnections=5] - Number of connections reserved for transactions
+ * @param {boolean} [config.logTiming] - Whether to log timing information
+ * @param {string} [config.pathToJavaBridge] - Path to the Java bridge JAR file
+ * @param {string} [config.encoding="utf8"] - Character encoding
+ * @param {boolean} [config.logs=false] - Whether to enable logging
+ * @returns {Sybase} A new Sybase instance
+ */
+function createConnection(config) {
+  return new Sybase(config);
+}
+
+/**
+ * Sybase database connection class.
+ * 
+ * @class
+ */
 function Sybase({
   host,
   port,
@@ -479,4 +510,40 @@ function Sybase({
   };
 }
 
+// Export the Sybase class for backward compatibility
 module.exports = Sybase;
+
+// Export additional functions for easier usage as an npm package
+module.exports.Sybase = Sybase;
+module.exports.createConnection = createConnection;
+
+/**
+ * Creates and connects to a Sybase database.
+ * 
+ * @param {Object} config - Configuration object for the Sybase connection
+ * @returns {Promise<Sybase>} A promise that resolves to a connected Sybase instance
+ */
+module.exports.connect = async function(config) {
+  const db = createConnection(config);
+  await db.connectAsync();
+  return db;
+};
+
+/**
+ * Executes a query on a new connection and then disconnects.
+ * 
+ * @param {Object} config - Configuration object for the Sybase connection
+ * @param {string} sql - SQL query to execute
+ * @returns {Promise<any>} A promise that resolves to the query result
+ */
+module.exports.query = async function(config, sql) {
+  const db = await module.exports.connect(config);
+  try {
+    const result = await db.querySync(sql);
+    await db.disconnectSync();
+    return result;
+  } catch (error) {
+    await db.disconnectSync();
+    throw error;
+  }
+};

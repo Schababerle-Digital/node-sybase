@@ -1,13 +1,20 @@
-declare module "sybjet" {
+declare module "nodejs-sybase" {
   /**
    * Interface for the options to be passed to the Sybase constructor.
    */
   interface SybaseOptions {
     host: string;
-    port: number;
+    port: number | string;
     database: string;
     username: string;
     password: string;
+    minConnections?: number;
+    maxConnections?: number;
+    connectionTimeout?: number;
+    idleTimeout?: number;
+    keepaliveTime?: number;
+    maxLifetime?: number;
+    transactionConnections?: number;
     logTiming?: boolean | number;
     pathToJavaBridge?: string;
     encoding?: string;
@@ -101,5 +108,35 @@ declare module "sybjet" {
     log(msg: string): void;
   }
 
+  /**
+   * Creates a Sybase database connection with the given configuration.
+   * @param config - Configuration object for the Sybase connection
+   * @returns A new Sybase instance
+   */
+  function createConnection(config: SybaseOptions): Sybase;
+
+  /**
+   * Creates and connects to a Sybase database.
+   * @param config - Configuration object for the Sybase connection
+   * @returns A promise that resolves to a connected Sybase instance
+   */
+  function connect(config: SybaseOptions): Promise<Sybase>;
+
+  /**
+   * Executes a query on a new connection and then disconnects.
+   * @param config - Configuration object for the Sybase connection
+   * @param sql - SQL query to execute
+   * @returns A promise that resolves to the query result
+   */
+  function query(config: SybaseOptions, sql: string): Promise<QueryResult[]>;
+
+  // For backward compatibility
   export = Sybase;
+
+  // Additional exports
+  namespace Sybase {
+    export { Sybase, createConnection, connect, query };
+  }
 }
+
+// No need for additional module declaration as we've already declared "nodejs-sybase"
