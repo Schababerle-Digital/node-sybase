@@ -9,7 +9,7 @@ This library provides a Node.js bridge to connect to a Sybase database. It uses 
 ## Installation
 
 ```bash
-npm install @schababerledigital/node-sybase
+npm install schababerledigital/nodejs-sybase
 ```
 
 ## Original package

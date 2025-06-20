@@ -1,6 +1,6 @@
 {
-  "name": "node-sybase",
-  "version": "1.0.2",
+  "name": "nodejs-sybase",
+  "version": "2.0.0",
   "description": "This library provides a Node.js bridge to connect to a Sybase database. It uses a Java bridge to facilitate the connection and query execution.",
   "dependencies": {
     "stream-json": "latest"
